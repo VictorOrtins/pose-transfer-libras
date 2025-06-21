@@ -8,7 +8,7 @@ from .losses import GANLoss, PerceptualLoss
 
 class PoseTransferModel(BaseModel):
     
-    def __init__(self, gpuids=None):
+    def __init__(self, keypoints_numbers = 36, gpuids=None):
         super(PoseTransferModel, self).__init__()
         self.models = ['netG', 'netD']
         self.losses = ['lossG_L1', 'lossG_GAN', 'lossG_PER', 'lossG', 'lossD_fake', 'lossD_real', 'lossD']
@@ -17,7 +17,7 @@ class PoseTransferModel(BaseModel):
         
         self.setup(verbose=True)
         
-        self.netG = NetG(3, 36, 3)
+        self.netG = NetG(3, keypoints_numbers, 3)
         self.netD = NetD(6)
         
         self.init_networks(verbose=True)
