@@ -5,10 +5,6 @@ This is a modification of the "Official code for Multi-scale Attention Guided Po
 
 <br>
 
-![network_architecture](https://user-images.githubusercontent.com/38404108/153903271-2a1e7faf-1bc6-4e73-811e-6fcd5c5b58a6.png)
-
-<br>
-
 ### :zap: Getting Started
 ```bash
 mkdir pose2pose
