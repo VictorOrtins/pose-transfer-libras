@@ -20,7 +20,7 @@ pip install -r requirements.txt
 * Download dataset files from [Google Drive](https://how2sign.github.io/#download) and extract into `dataset` directory.
   *   Green Screen RGB clips* (frontal view) and B-F-H 2D Keypoints clips* (frontal view)
   *   Remember to use the generate_frames_and_csv code
-* Download pretrained checkpoints from [Google Drive](https://drive.google.com/file/d/1-iwbykju_Bz8l0EloabnYSMqrECXeGIe/view?usp=sharing) into `wherever you want` directory (just change in the code).
+* Download pretrained checkpoints from [Google Drive](https://drive.google.com/file/d/1-iwbykju_Bz8l0EloabnYSMqrECXeGIe/view?usp=sharing) into `wherever you want` directory (change the path in the code).
 
 <br>
 
