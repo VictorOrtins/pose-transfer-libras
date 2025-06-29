@@ -5,7 +5,6 @@ import cv2
 model = PoseTransferModelInference(keypoints_numbers=274)
 
 #state_dict = torch.load("./output/Libras/ckpt/2025-06-22-20-10-33/netG_20000.pth", map_location='cpu')
-#state_dict = add_module_prefix(state_dict)
 #model.netG.load_state_dict(state_dict)
 
 image_condition_size = []
