@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+from torchvision.models import efficientnet_b2, EfficientNet_B2_Weights
 
 def conv1x1(in_channels, out_channels):
     return nn.Conv2d(in_channels, out_channels, 1, 1, 0, bias=False)
@@ -105,6 +105,87 @@ class NetG(nn.Module):
         x2_d3 = self.in2_down3(x2_d2)
         x2_d4 = self.in2_down4(x2_d3)
         
+        y = x1_d4 * torch.sigmoid(x2_d4)
+        y = self.out_up1(y)
+        y = y * torch.sigmoid(x2_d3)
+        y = self.out_up2(y)
+        y = y * torch.sigmoid(x2_d2)
+        y = self.out_up3(y)
+        y = y * torch.sigmoid(x2_d1)
+        y = self.out_up4(y)
+        y = self.out_conv1(y)
+        return y
+    
+class NetG2(nn.Module):
+    def __init__(self, in1_channels, in2_channels, out_channels, ngf=64):
+        super(NetG2, self).__init__()
+
+        effnet = efficientnet_b2(weights=EfficientNet_B2_Weights.DEFAULT)
+
+        for param in effnet.features.parameters():
+            param.requires_grad = False
+
+
+        self.image_encoder = nn.Sequential(
+            effnet.features[:8],  
+            nn.Upsample(scale_factor=2, mode='nearest'), #Need this part to connect with pose encoder
+            nn.Conv2d(352, ngf*16, kernel_size=1)  
+        )
+
+        self.in2_conv1 = self.inconv(in2_channels, ngf)
+        self.in2_down1 = self.down2x(ngf, ngf*2)
+        self.in2_down2 = self.down2x(ngf*2, ngf*4)
+        self.in2_down3 = self.down2x(ngf*4, ngf*8)
+        self.in2_down4 = self.down2x(ngf*8, ngf*16)
+
+        self.out_up1 = self.up2x(ngf*16, ngf*8)
+        self.out_up2 = self.up2x(ngf*8, ngf*4)
+        self.out_up3 = self.up2x(ngf*4, ngf*2)
+        self.out_up4 = self.up2x(ngf*2, ngf)
+        self.out_conv1 = self.outconv(ngf, out_channels)
+
+    def inconv(self, in_channels, out_channels):
+        return nn.Sequential(
+            conv3x3(in_channels, out_channels),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True)
+        )
+
+    def outconv(self, in_channels, out_channels):
+        return nn.Sequential(
+            ResidualBlock(in_channels),
+            ResidualBlock(in_channels),
+            ResidualBlock(in_channels),
+            ResidualBlock(in_channels),
+            conv1x1(in_channels, out_channels),
+            nn.Tanh()
+        )
+
+    def down2x(self, in_channels, out_channels):
+        return nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            ResidualBlock(out_channels)
+        )
+
+    def up2x(self, in_channels, out_channels):
+        return nn.Sequential(
+            upconv2x(in_channels, out_channels),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            ResidualBlock(out_channels)
+        )
+
+    def forward(self, x1_img, x2_pose):
+        x1_d4 = self.image_encoder(x1_img)
+
+        x2_c1 = self.in2_conv1(x2_pose)
+        x2_d1 = self.in2_down1(x2_c1)
+        x2_d2 = self.in2_down2(x2_d1)
+        x2_d3 = self.in2_down3(x2_d2)
+        x2_d4 = self.in2_down4(x2_d3)
+
         y = x1_d4 * torch.sigmoid(x2_d4)
         y = self.out_up1(y)
         y = y * torch.sigmoid(x2_d3)

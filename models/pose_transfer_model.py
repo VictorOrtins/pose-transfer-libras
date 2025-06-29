@@ -1,9 +1,11 @@
 import torch
 import torchvision
 from .base_model import BaseModel
-from .netG import NetG
+from .netG import NetG2
 from .netD import NetD
 from .losses import GANLoss, PerceptualLoss
+import cv2
+import numpy as np
 
 
 class PoseTransferModel(BaseModel):
@@ -17,12 +19,12 @@ class PoseTransferModel(BaseModel):
         
         self.setup(verbose=True)
         
-        self.netG = NetG(3, keypoints_numbers, 3)
+        self.netG = NetG2(3, keypoints_numbers, 3)
         self.netD = NetD(6)
         
         self.init_networks(verbose=True)
         
-        self.criterionL1 = torch.nn.L1Loss()
+        self.criterionL1 = torch.nn.L1Loss(reduction='none')
         self.criterionGAN = GANLoss().to(self.device)
         self.criterionPERL4 = PerceptualLoss(self.build_vgg19_sub_model(4)).to(self.device)
         self.criterionPERL9 = PerceptualLoss(self.build_vgg19_sub_model(9)).to(self.device)
@@ -35,6 +37,7 @@ class PoseTransferModel(BaseModel):
         self.real_img_B = inputs['imgB'].to(self.device)
         self.real_map_A = inputs['mapA'].to(self.device)
         self.real_map_B = inputs['mapB'].to(self.device)
+        self.weight_map_B = inputs['WmapB'].to(self.device)
     
     def forward(self):
         real_map_AB = torch.cat((self.real_map_A, self.real_map_B), dim=1)
@@ -53,7 +56,8 @@ class PoseTransferModel(BaseModel):
         self.lossD.backward()
     
     def backward_G(self):
-        self.lossG_L1 = self.criterionL1(self.fake_img_B, self.real_img_B)
+        self.lossG_L1 = self.criterionL1(self.fake_img_B, self.real_img_B) * self.weight_map_B
+        self.lossG_L1 = self.lossG_L1.mean()
         
         fake_img_AB = torch.cat((self.real_img_A, self.fake_img_B), dim=1)
         pred_fake = self.netD(fake_img_AB)
@@ -88,8 +92,14 @@ class PoseTransferModel(BaseModel):
         fake_img_B = torchvision.utils.make_grid(self.fake_img_B.detach().cpu(), nrow=1, normalize=True)
         grid_image = torch.cat((real_img_A, real_img_B, fake_img_B), dim=2)
         self.netG.train(mode)
+
+        grid_image = grid_image.permute(1, 2, 0).numpy()  
+        grid_image = (grid_image * 255).astype(np.uint8)  
+        grid_image = cv2.cvtColor(grid_image, cv2.COLOR_RGB2BGR)
+        
         return grid_image
-    
+
+
     @staticmethod
     def build_vgg19_sub_model(n_layers=0):
         model = torchvision.models.vgg19(weights='IMAGENET1K_V1').features
