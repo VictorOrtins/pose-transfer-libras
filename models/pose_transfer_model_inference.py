@@ -90,8 +90,6 @@ class PoseTransferModelInference():
         with torch.no_grad():
             imgA_t_trasfered = self.netG(imgA_t, mapAB_t).squeeze()
 
-        print(imgA_t_trasfered.shape)
-
         imgA_t_trasfered = imgA_t_trasfered.permute(1, 2, 0).numpy()  # [H, W, C]
         imgA_t_trasfered = (imgA_t_trasfered + 1) / 2 
         imgA_t_trasfered = (imgA_t_trasfered * 255).astype(np.uint8)
