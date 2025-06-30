@@ -5,7 +5,7 @@ This is a modification of the "Official code for Multi-scale Attention Guided Po
 
 ###  Some results
 
-| Imagem (Condition) | Video (transferir pose) | → | Resultado |
+| Image (Condition) | Video (pose to transfer) | → | Result |
 |:--------------:|:--------------:|:-:|:---------------:|
 | <img src="videos_results/condition_1.jpg" width="200"/> | <img src="videos_results/pose_transfer1.gif" width="200"/> || ![Resultado](videos_results/video_resultado1.gif) |
 | <img src="videos_results/condition_2.jpg" width="200"/> | <img src="videos_results/pose_transfer2.gif" width="200"/> || ![Resultado](videos_results/video_resultado2.gif) |
