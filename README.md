@@ -3,7 +3,12 @@ This is a modification of the "Official code for Multi-scale Attention Guided Po
 
 [![badge_torch](https://img.shields.io/badge/made_with-PyTorch_2.0-EE4C2C?style=flat-square&logo=PyTorch)](https://pytorch.org/)
 
-<br>
+###  Some results
+
+| Imagem (Condition) | Video (transferir pose) | → | Resultado |
+|:--------------:|:--------------:|:-:|:---------------:|
+| <img src="videos_results/condition_1.jpg" width="200"/> | <img src="videos_results/pose_transfer1.gif" width="200"/> || ![Resultado](videos_results/video_resultado1.gif) |
+| <img src="videos_results/condition_2.jpg" width="200"/> | <img src="videos_results/pose_transfer2.gif" width="200"/> || ![Resultado](videos_results/video_resultado2.gif) |
 
 ### :zap: Getting Started
 ```bash
