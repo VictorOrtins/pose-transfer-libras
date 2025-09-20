@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 from tqdm import tqdm
 import cv2
@@ -11,7 +12,7 @@ csv_name = "csv_pairs_test"
 
 os.makedirs(output_dir, exist_ok=True)
 
-video_paths = "./videos_teste"
+video_paths = sys.argv[1]
 
 dict_to_frame = {'file_name': [], 'frame_numbers': []}
 
