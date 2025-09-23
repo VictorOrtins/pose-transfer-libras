@@ -6,13 +6,14 @@ import os
 
 STEP = 5
 
-output_dir = "frames_videos_teste"
-csv_path = "./"
+video_paths = sys.argv[1]
+output_dir = sys.argv[2]
+csv_path = sys.argv[3]
+
 csv_name = "csv_pairs_test"
 
 os.makedirs(output_dir, exist_ok=True)
 
-video_paths = sys.argv[1]
 
 dict_to_frame = {'file_name': [], 'frame_numbers': []}
 
