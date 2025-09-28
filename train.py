@@ -6,6 +6,7 @@ from torch.utils.tensorboard import SummaryWriter
 from data.dataloader import create_dataloaderV2
 from models.pose_transfer_model import PoseTransferModel
 import os
+import sys
 import cv2
 
 import random
@@ -39,19 +40,26 @@ def add_module_prefix(state_dict):
 # -----------------------------------------------------------------------------
 dataset_name = 'Libras'
 
-dataset_root = f'../datasets'
-img_pairs_train = f'{dataset_root}/train_img_pairs.csv'
-img_pairs_test = f'{dataset_root}/test_img_pairs.csv'
-pose_maps_dir_train = f'{dataset_root}/train_pose_maps'
-pose_maps_dir_test = f'{dataset_root}/test_pose_maps'
+dataset_root = sys.argv[1]
+csv_path = sys.argv[2]
+rgb_frames_path = sys.argv[3]
+json_keypoints_path = sys.argv[4]
 
-rgb_frames_dir_train = f'{dataset_root}/frames_videos_train'
-json_keypoints_dir_train = f'{dataset_root}/openpose_output_train/json'
+img_pairs_train = f'{dataset_root}/{csv_path}'
+# img_pairs_test = f'{dataset_root}/test_img_pairs.csv'
 
-rgb_frames_dir_teste = f'{dataset_root}/frames_videos_teste'
-json_keypoints_dir_teste = f'{dataset_root}/openpose_output_teste/json'
+# pose_maps_dir_train = f'{dataset_root}/train_pose_maps'
+# pose_maps_dir_test = f'{dataset_root}/test_pose_maps'
+
+rgb_frames_dir_train = f'{dataset_root}/{rgb_frames_path}'
+# json_keypoints_dir_train = f'{dataset_root}/openpose_output_train/json'
+json_keypoints_dir_train = f'{dataset_root}/{json_keypoints_path}'
+
+# rgb_frames_dir_teste = f'{dataset_root}/frames_videos_teste'
+# json_keypoints_dir_teste = f'{dataset_root}/openpose_output_teste/json'
 
 gpu_ids = [0]
+# gpu_ids = []
 
 batch_size_train = 8
 batch_size_test = 8
@@ -62,7 +70,7 @@ ckpt_id = None
 ckpt_dir = None
 
 run_info = ''
-out_path = f'./output/{dataset_name}'
+out_path = sys.argv[5]
 os.makedirs(out_path, exist_ok=True)
 # -----------------------------------------------------------------------------
 
@@ -89,12 +97,12 @@ train_dataloader = create_dataloaderV2(rgb_frames_dir_train, json_keypoints_dir_
                                      img_transform, map_transform,
                                      batch_size=batch_size_train, shuffle=True)
 
-test_dataloader = create_dataloaderV2(rgb_frames_dir_teste, json_keypoints_dir_teste, img_pairs_test,
-                                    img_transform, map_transform,
-                                    batch_size=batch_size_test, shuffle=False)
+# test_dataloader = create_dataloaderV2(rgb_frames_dir_teste, json_keypoints_dir_teste, img_pairs_test,
+#                                     img_transform, map_transform,
+#                                     batch_size=batch_size_test, shuffle=False)
 
 # create fixed batch for testing
-fixed_test_batch = next(iter(test_dataloader))
+# fixed_test_batch = next(iter(test_dataloader))
 
 model = PoseTransferModel(gpuids=gpu_ids, keypoints_numbers=274)
 
@@ -141,9 +149,10 @@ for epoch in range(n_epoch):
             for loss_name, loss in losses.items():
                 loss_group = 'LossG' if loss_name.startswith('lossG') else 'LossD'
                 logger.add_scalar(f'{loss_group}/{loss_name}', loss, n_iters)
-            model.set_inputs(fixed_test_batch)
-            visuals = model.compute_visuals()
-            cv2.imwrite(f"{out_path}/test_samples/{timestamp}{infostamp}/Iteration_{n_iters}.jpg", visuals)
+            
+            # model.set_inputs(fixed_test_batch)
+            # visuals = model.compute_visuals()
+            # cv2.imwrite(f"{out_path}/test_samples/{timestamp}{infostamp}/Iteration_{n_iters}.jpg", visuals)
             #logger.add_image(f'Iteration_{n_iters}', visuals, n_iters)
         
         n_iters += 1

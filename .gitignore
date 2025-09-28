@@ -137,3 +137,9 @@ user-study/static/images/practice/
 user-study/static/images/test/
 user-study/*.json
 user-study/*.csv
+
+*.mp4
+dataset/frame_videos/*
+dataset/**/*.csv
+dataset/val_2D_keypoints/*
+dataset/out/*
